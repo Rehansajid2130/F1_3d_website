@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APEX PROTO-1 // Next-Gen Formula 1 3D Showroom</title>
+  <meta name="description" content="Ultra-high-fidelity interactive 3D Formula 1 Race Car Showroom with dynamic color themes, aerodynamic wind-tunnel visualization, and exploded engineering deconstruction.">
+  
+  <!-- Fonts: Orbitron for telemetry, Outfit for sleek modern UI -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;600;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div id="app-container">
+    <!-- Three.js WebGL Canvas Mount -->
+    <div id="webgl-canvas"></div>
+
+    <!-- 3D Hotspot Screen-Space Layer -->
+    <div id="annotations-container"></div>
+
+    <!-- UI Overlay Layer -->
+    <div class="ui-layer">
+      <!-- Top Navigation -->
+      <header class="top-nav">
+        <div class="brand-block">
+          <div class="f1-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+          </div>
+          <div class="brand-text">
+            <h1>Apex Proto-1</h1>
+            <div class="status-tag">
+              <span class="pulse-dot"></span>
+              <span>TELEMETRY ACTIVE &bull; 60 FPS PBR</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="nav-actions">
+          <button id="btn-turntable" class="icon-btn active" title="Toggle Auto-Rotate">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+          </button>
+          <button id="btn-sound" class="icon-btn" title="Toggle Sound SFX">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+              <path class="unmuted-path" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Center Stage Area (Left Livery Dock + Right Control Bar) -->
+      <main class="main-stage-dock">
+        <!-- Left Livery Selector Dock -->
+        <aside class="livery-dock">
+          <div class="dock-header">
+            <span class="dock-title">Team Livery</span>
+            <span class="dock-tag" style="font-size:10px; color:var(--color-primary); font-weight:700;">SYNC THEME</span>
+          </div>
+          <div id="livery-list" class="livery-list">
+            <!-- Dynamically populated from THEMES -->
+          </div>
+        </aside>
+
+        <!-- Track Mode Dynamic Timing Banner -->
+        <div id="track-telemetry-banner" class="track-hud-banner hidden">
+          <div class="lap-chip">
+            <span class="f1-live-badge">HOT LAP</span>
+            <span class="lap-text">SECTOR 1 <span style="color:#64748b;">// GP SPEEDWAY</span></span>
+          </div>
+          <div class="timer-chip">
+            <span class="timer-label">LAP TIME</span>
+            <span id="hud-lap-timer" class="timer-digits">01:18.420</span>
+          </div>
+          <div class="delta-chip">
+            <span class="delta-label">DELTA</span>
+            <span id="hud-delta" class="delta-digits">-0.428s</span>
+          </div>
+        </div>
+
+        <!-- Right Mode Controls Bar -->
+        <aside class="control-bar">
+          <button id="btn-track-mode" class="f1-button highlight-racing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+            </svg>
+            <span class="btn-label">Track Mode</span>
+          </button>
+
+          <button id="btn-exploded" class="f1-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            <span class="btn-label">Explode Aero</span>
+          </button>
+
+          <button id="btn-wind-tunnel" class="f1-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path>
+              <path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path>
+              <path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path>
+            </svg>
+            <span class="btn-label">Wind Tunnel</span>
+          </button>
+
+          <button id="btn-cockpit" class="f1-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <span class="btn-label">Cockpit POV</span>
+          </button>
+
+          <button id="btn-drs" class="f1-button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 14h6m4 0h6M4 10h16M4 18h16"></path>
+            </svg>
+            <span class="btn-label">Toggle DRS</span>
+          </button>
+
+          <button id="btn-rev" class="f1-button primary">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span class="btn-label">Throttle Rev</span>
+          </button>
+        </aside>
+
+        <!-- Interactive Driving Pedal Box (Shown in Track Mode) -->
+        <div id="pedals-control-box" class="pedals-box hidden">
+          <div class="pedal-group">
+            <button id="btn-pedal-brake" class="pedal-btn brake" title="Hold to Brake">
+              <div class="pedal-plate">
+                <span class="pedal-text">BRAKE</span>
+                <span class="pedal-hint">S / &darr;</span>
+              </div>
+              <div class="pedal-meter">
+                <div id="brake-meter-bar" class="pedal-meter-fill"></div>
+              </div>
+            </button>
+
+            <button id="btn-pedal-throttle" class="pedal-btn throttle" title="Hold to Throttle">
+              <div class="pedal-plate">
+                <span class="pedal-text">THROTTLE</span>
+                <span class="pedal-hint">W / &uarr;</span>
+              </div>
+              <div class="pedal-meter">
+                <div id="throttle-meter-bar" class="pedal-meter-fill"></div>
+              </div>
+            </button>
+          </div>
+          <div class="pedal-keyboard-legend">
+            <span><kbd>W</kbd> / <kbd>&uarr;</kbd> Throttle</span>
+            <span><kbd>S</kbd> / <kbd>&darr;</kbd> Brake</span>
+            <span><kbd>D</kbd> DRS</span>
+            <span><kbd>C</kbd> Camera</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- Bottom Telemetry Dashboard -->
+      <footer class="bottom-telemetry-bar">
+        <!-- Speed & Gear Cluster -->
+        <div class="speedo-cluster">
+          <div class="gear-display">
+            <span class="gear-tag">GEAR</span>
+            <span id="hud-gear" class="gear-val">7</span>
+          </div>
+          <div class="speed-display">
+            <div class="speed-num-row">
+              <span id="hud-speed" class="speed-val">318</span>
+              <span class="speed-unit">KM/H</span>
+            </div>
+            <div class="rpm-indicator">
+              <span>RPM</span>
+              <span id="hud-rpm" class="rpm-val">12,400</span>
+              <span id="hud-drs-status" style="font-weight:700; font-size:10px; margin-left:6px;">DRS ARMED</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sensor Matrix -->
+        <div class="sensor-matrix">
+          <div class="sensor-item">
+            <span class="sensor-label">Downforce Load</span>
+            <span id="hud-downforce" class="sensor-val">2,850 kg</span>
+            <div class="gauge-bar-wrapper">
+              <div class="gauge-bar-fill" style="width: 82%;"></div>
+            </div>
+          </div>
+
+          <div class="sensor-item">
+            <span class="sensor-label">MGU-K Battery</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="hud-batt-val" class="sensor-val">84%</span>
+              <span style="font-size:10px; color:#10b981;">RECHARGE</span>
+            </div>
+            <div class="gauge-bar-wrapper">
+              <div id="hud-batt-bar" class="gauge-bar-fill" style="width: 84%; background:#10b981;"></div>
+            </div>
+          </div>
+
+          <div class="sensor-item">
+            <span class="sensor-label">Tire Window</span>
+            <span class="sensor-val">108°C <span style="font-size:11px; color:#10b981;">OPTIMAL</span></span>
+            <div class="gauge-bar-wrapper">
+              <div class="gauge-bar-fill" style="width: 72%;"></div>
+            </div>
+          </div>
+
+          <div class="sensor-item">
+            <span class="sensor-label">Peak G-Force</span>
+            <span id="hud-gforce" class="sensor-val">+1.4 G <span style="font-size:10px; color:#94a3b8;">LONGITUDINAL</span></span>
+            <div class="gauge-bar-wrapper">
+              <div id="hud-gforce-bar" class="gauge-bar-fill" style="width: 45%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Component Quick Focus Chips -->
+        <div class="hotspot-shortcuts">
+          <span class="shortcut-tag">INSPECT:</span>
+          <button class="shortcut-chip" data-target="front-wing">Front Wing</button>
+          <button class="shortcut-chip" data-target="halo-cockpit">Halo</button>
+          <button class="shortcut-chip" data-target="power-unit">V6 Hybrid</button>
+          <button class="shortcut-chip" data-target="rear-wing-drs">DRS Wing</button>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Engineering Dossier Modal -->
+    <div id="dossier-modal" class="dossier-backdrop">
+      <div class="dossier-card">
+        <div class="dossier-top">
+          <div class="dossier-headline">
+            <h2 id="dossier-title">Front Aero Wing & Strakes</h2>
+            <p id="dossier-subtitle">Ground-Effect Aerodynamics</p>
+          </div>
+          <button id="btn-close-dossier" class="close-btn" aria-label="Close dossier">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <p id="dossier-desc" class="dossier-body"></p>
+
+        <div id="dossier-stats" class="dossier-stats-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>
